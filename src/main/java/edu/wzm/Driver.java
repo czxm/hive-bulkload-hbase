@@ -7,14 +7,13 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat;
+import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
 import org.apache.hadoop.hbase.mapreduce.SimpleTotalOrderPartitioner;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.HiveMetaStoreClient;
-import org.apache.hadoop.hive.ql.metadata.Table;
 import org.apache.hadoop.hive.serde2.objectinspector.StructField;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -35,7 +34,7 @@ public class Driver extends Configured implements Tool{
     private static Configuration hconf = null;
     private static HBaseAdmin hadmin = null;
 
-    public static void connectHBase(){
+    public static Connection connectHBase(){
         final String HBASE_CONFIG_ZOOKEEPER_CLIENT = "hbase.zookeeper.property.clientPort";
         final String HBASE_ZOOKEEPER_CLIENT_PORT = "2181";
         final String HBASE_CONFIG_ZOOKEEPER_QUORUM = "hbase.zookeeper.quorum";
@@ -43,13 +42,14 @@ public class Driver extends Configured implements Tool{
 
         conf.set(HBASE_CONFIG_ZOOKEEPER_CLIENT, HBASE_ZOOKEEPER_CLIENT_PORT);
         conf.set(HBASE_CONFIG_ZOOKEEPER_QUORUM, HBASE_ZOOKEEPER_SERVER);
-        hconf = HBaseConfiguration.create(conf);
+
         try{
-            hadmin = new HBaseAdmin(hconf);
+            return ConnectionFactory.createConnection();
         }
         catch (Exception e){
             e.printStackTrace();
         }
+        return null;
     }
 
 
@@ -74,11 +74,11 @@ public class Driver extends Configured implements Tool{
     }
 
     @SuppressWarnings("deprecation")
-    @Override
+
     public int run(String[] strings) throws Exception {
 
         Configuration config = getConf();
-        Driver.connectHBase();
+        Connection hbaseCon = Driver2.connectHBase();
 
         Job job = new Job(config, "RCFile to HFile");
         job.setJarByClass(Driver.class);
@@ -94,8 +94,10 @@ public class Driver extends Configured implements Tool{
         job.setInputFormatClass(RCFileMapReduceInputFormat.class);
 //		job.setOutputFormatClass(HFileOutputFormat.class);
 
-        HTable table = new HTable(config, strings[3]);
-        HFileOutputFormat.configureIncrementalLoad(job, table);
+        TableName name = TableName.valueOf(strings[3]);
+        Table table = hbaseCon.getTable(name);
+        RegionLocator locator = hbaseCon.getRegionLocator(name);
+        HFileOutputFormat2.configureIncrementalLoad(job, table, locator);
 
         RCFileMapReduceInputFormat.addInputPath(job, new Path(strings[0]));
         FileOutputFormat.setOutputPath(job, new Path(strings[1]));

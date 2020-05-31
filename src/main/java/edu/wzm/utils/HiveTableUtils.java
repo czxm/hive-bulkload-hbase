@@ -17,7 +17,7 @@ import java.util.List;
 public class HiveTableUtils {
 
     //Gain hive table columns by parsing file.
-    public static List<String>  getFieldName(String filePath){
+    public static List<String> getFieldName(String filePath) {
         File file = new File(filePath);
         BufferedReader reader = null;
         List<String> fieldName = new ArrayList<String>();
@@ -39,11 +39,11 @@ public class HiveTableUtils {
             }
 
             reader.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return fieldName;
     }
+}
 

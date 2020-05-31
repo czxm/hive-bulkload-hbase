@@ -2,6 +2,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+    <repositories>
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
+    </repositories>
+
   <groupId>edu.wzm</groupId>
   <artifactId>hfile</artifactId>
   <version>1.0-SNAPSHOT</version>
@@ -12,9 +19,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <hadoop-version>2.4.1</hadoop-version>
-    <hive-version>1.0.1</hive-version>
-    <hbase-version>1.1.3</hbase-version>
+    <hadoop-version>3.0.0-cdh6.3.3</hadoop-version>
+    <hive-version>2.1.1-cdh6.3.3</hive-version>
+    <hbase-version>2.1.0-cdh6.3.3</hbase-version>
   </properties>
 
   <dependencies>

@@ -1,21 +1,31 @@
--- hive -e 'show create table grades' > table
-CREATE TABLE `mydb.grades`(
-  `id` int COMMENT 'ID', 
-  `name` string COMMENT '姓名', 
-  `age` int COMMENT '年龄')
-ROW FORMAT DELIMITED 
-  FIELDS TERMINATED BY ',' 
-  LINES TERMINATED BY '\n' 
-STORED AS INPUTFORMAT 
+CREATE EXTERNAL TABLE `tpch_rc.lineitem`(
+    `l_orderkey` bigint COMMENT "C", 
+    `l_partkey` bigint COMMENT "C", 
+    `l_suppkey` bigint COMMENT "C", 
+    `l_linenumber` int COMMENT "C", 
+    `l_quantity` decimal(12 COMMENT "C",2), 
+    `l_extendedprice` decimal(12 COMMENT "C",2), 
+    `l_discount` decimal(12 COMMENT "C",2), 
+    `l_tax` decimal(12 COMMENT "C",2), 
+    `l_returnflag` string COMMENT "C", 
+    `l_linestatus` string COMMENT "C", 
+    `l_shipdate` string COMMENT "C", 
+    `l_commitdate` string COMMENT "C", 
+    `l_receiptdate` string COMMENT "C", 
+    `l_shipinstruct` string COMMENT "C", 
+    `l_shipmode` string COMMENT "C", 
+    `l_comment` string)
+  ROW FORMAT SERDE 
+  'org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe' 
+  WITH SERDEPROPERTIES ( 
+      'field.delim'='|', 
+      'serialization.format'='|') 
+  STORED AS INPUTFORMAT 
   'org.apache.hadoop.hive.ql.io.RCFileInputFormat' 
-OUTPUTFORMAT 
+  OUTPUTFORMAT 
   'org.apache.hadoop.hive.ql.io.RCFileOutputFormat'
-LOCATION
-  'hdfs://192.168.253.11:9000/user/root/hive/warehouse/mydb.db/grades'
-TBLPROPERTIES (
-  'COLUMN_STATS_ACCURATE'='true', 
-  'numFiles'='1', 
-  'numRows'='0', 
-  'rawDataSize'='0', 
-  'totalSize'='30', 
-  'transient_lastDdlTime'='1457602162')
+  LOCATION
+  'hdfs://localhost:20500/test-warehouse/tpch.lineitem_rc'
+  TBLPROPERTIES (
+      'OBJCAPABILITIES'='EXTREAD,EXTWRITE', 
+      'transient_lastDdlTime'='1575941980')
