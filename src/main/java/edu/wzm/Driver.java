@@ -21,7 +21,6 @@ import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hive.hcatalog.common.HCatUtil;
-import org.apache.hive.hcatalog.rcfile.RCFileMapReduceInputFormat;
 
 import java.util.List;
 
@@ -81,6 +80,7 @@ public class Driver extends Configured implements Tool{
         Connection hbaseCon = Driver2.connectHBase();
 
         Job job = new Job(config, "RCFile to HFile");
+        job.addArchiveToClassPath(new Path("/tmp/hive-exec.jar"));
         job.setJarByClass(Driver.class);
         job.setMapperClass(RCFileToHFile.ParseMapper.class);
         job.setMapOutputKeyClass(ImmutableBytesWritable.class);
